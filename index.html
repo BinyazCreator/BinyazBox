@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<title>BINYAZ BOX</title>
+
+<style>
+:root {
+  --yellow: #facc15;
+  --black: #111111;
+  --white: #ffffff;
+  --panel: #1d1d1d;
+  --muted: #aaaaaa;
+  --border: #333333;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--black);
+  color: var(--white);
+  font-family: Tahoma, Arial, sans-serif;
+  user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  border-radius: 12px;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  background: var(--yellow);
+  color: #111;
+  font-weight: bold;
+  padding: 12px 15px;
+  transition: background .2s, transform .15s;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+button.secondary {
+  background: #303030;
+  color: white;
+  border: 1px solid #444;
+}
+
+/* Header */
+
+header {
+  flex-shrink: 0;
+  height: 64px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111;
+  border-bottom: 1px solid #292929;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+}
+
+.logo span {
+  color: var(--yellow);
+}
+
+#language {
+  min-width: 85px;
+}
+
+/* Main application area */
+
+main {
+  width: 100%;
+  max-width: 1000px;
+  flex: 1;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Hero */
+
+.hero {
+  flex-shrink: 0;
+  background: var(--yellow);
+  color: #111;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* Search */
+
+.search {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 14px;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: #222;
+  border: 1px solid #444;
+  color: white;
+  padding: 12px;
+  outline: none;
+}
+
+.search input:focus,
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--yellow);
+}
+
+/* Tool grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  padding: 2px 2px 10px;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.grid::-webkit-scrollbar,
+#tool::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  min-width: 0;
+  min-height: 115px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  padding: 15px;
+  color: white;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  transition: border-color .2s, background .2s;
+}
+
+.card:hover {
+  border-color: var(--yellow);
+}
+
+.icon {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Tool screen */
+
+#tool {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+#tool h2 {
+  color: var(--yellow);
+  font-size: 21px;
+  margin: 20px 0;
+}
+
+#content {
+  padding-bottom: 10px;
+}
+
+.field {
+  margin: 15px 0;
+  min-width: 0;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  max-width: 100%;
+  background: #111;
+  border: 1px solid #444;
+  color: white;
+  padding: 12px;
+  outline: none;
+}
+
+.field input[type="color"] {
+  height: 52px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.field input[type="range"] {
+  padding: 0;
+  accent-color: var(--yellow);
+}
+
+.field input[type="file"] {
+  font-size: 12px;
+}
+
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.8;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.actions button {
+  flex-shrink: 0;
+}
+
+#tool > .actions:first-child {
+  margin-bottom: 10px;
+}
+
+.result {
+  padding: 13px;
+  margin: 12px 0;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+
+#qr {
+  margin-top: 15px;
+  background: white;
+  padding: 10px;
+  display: inline-block;
+  border-radius: 10px;
+}
+
+#qr img,
+#qr canvas {
+  max-width: 100%;
+}
+
+#preview {
+  height: 60px;
+  border-radius: 12px;
+  margin: 12px 0;
+  border: 1px solid #444;
+}
+
+#content a {
+  color: var(--yellow);
+}
+
+#content p {
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 20px 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Hide website footer */
+
+footer {
+  display: none;
+}
+
+/* Mobile */
+
+@media(max-width: 650px) {
+  header {
+    height: 60px;
+    padding: 0 14px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .hero {
+    padding: 16px;
+    border-radius: 17px;
+  }
+
+  .hero h1 {
+    font-size: 21px;
+  }
+
+  .hero p {
+    font-size: 12px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    min-height: 108px;
+    padding: 13px;
+  }
+
+  #tool {
+    padding: 14px;
+  }
+}
+
+@media(max-width: 360px) {
+  header {
+    padding: 0 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .grid {
+    gap: 8px;
+  }
+
+  .card {
+    padding: 10px;
+    min-height: 100px;
+  }
+
+  .card h3 {
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">BINYAZ <span>BOX</span></div>
+  <button class="secondary" id="language">English</button>
+</header>
+
+<main>
+
+  <section class="hero">
+    <h1 id="welcome">جعبه ابزار دیجیتال تو 💛</h1>
+    <p id="subtitle">ده ابزار کاربردی، در یک محیط ساده و سریع.</p>
+  </section>
+
+  <div class="search">
+    <input id="search" placeholder="جست‌وجوی ابزار..." autocomplete="off">
+    <button id="clear">پاک‌کردن</button>
+  </div>
+
+  <section class="grid" id="grid"></section>
+
+  <section id="tool">
+    <div class="actions">
+      <button class="secondary" id="back">← بازگشت</button>
+    </div>
+
+    <h2 id="toolTitle"></h2>
+    <div id="content"></div>
+  </section>
+
+</main>
+
+<footer>BINYAZ BOX</footer>
+
+<script>
+const tools = [
+  {
+    id:"calc",
+    icon:"🧮",
+    fa:"ماشین‌حساب",
+    en:"Calculator",
+    df:"محاسبات روزمره",
+    de:"Everyday calculations"
+  },
+  {
+    id:"qr",
+    icon:"▦",
+    fa:"ساخت QR Code",
+    en:"QR Code Maker",
+    df:"ساخت کد از متن و لینک",
+    de:"Create QR codes"
+  },
+  {
+    id:"pass",
+    icon:"🔐",
+    fa:"تولید رمز عبور",
+    en:"Password Generator",
+    df:"ساخت رمز تصادفی",
+    de:"Generate random passwords"
+  },
+  {
+    id:"text",
+    icon:"📝",
+    fa:"ابزار متن",
+    en:"Text Toolkit",
+    df:"شمارش و تغییر حروف",
+    de:"Count and transform text"
+  },
+  {
+    id:"unit",
+    icon:"🔄",
+    fa:"تبدیل واحد",
+    en:"Unit Converter",
+    df:"تبدیل طول، وزن و دما",
+    de:"Convert units"
+  },
+  {
+    id:"color",
+    icon:"🎨",
+    fa:"کد رنگ",
+    en:"Color Picker",
+    df:"انتخاب رنگ و کد HEX",
+    de:"Pick a color and HEX"
+  },
+  {
+    id:"link",
+    icon:"🔗",
+    fa:"ابزار لینک",
+    en:"Link Tools",
+    df:"بررسی و بازکردن لینک",
+    de:"Validate and open links"
+  },
+  {
+    id:"note",
+    icon:"📋",
+    fa:"یادداشت",
+    en:"Text Editor",
+    df:"نوشتن و ذخیره متن",
+    de:"Write and save notes"
+  },
+  {
+    id:"crypto",
+    icon:"🔒",
+    fa:"رمزگذاری متن",
+    en:"Text Encryption",
+    df:"رمزگذاری با گذرواژه",
+    de:"Encrypt text with password"
+  },
+  {
+    id:"image",
+    icon:"🖼️",
+    fa:"فشرده‌سازی عکس",
+    en:"Image Compressor",
+    df:"کاهش حجم تصاویر",
+    de:"Compress images"
+  }
+];
+
+const words = {
+  fa: {
+    welcome:"جعبه ابزار دیجیتال تو 💛",
+    subtitle:"ده ابزار کاربردی، در یک محیط ساده و سریع.",
+    search:"جست‌وجوی ابزار...",
+    clear:"پاک‌کردن",
+    back:"← بازگشت",
+    calc:"عبارت ریاضی",
+    calculate:"محاسبه",
+    bad:"عبارت معتبر نیست.",
+    qr:"متن یا لینک",
+    make:"ساخت QR Code",
+    qrError:"ساخت QR Code نیاز به بارگذاری کتابخانه دارد.",
+    length:"طول رمز",
+    symbols:"شامل نمادها؟",
+    yes:"بله",
+    no:"خیر",
+    generate:"تولید",
+    text:"متن خود را وارد کن",
+    upper:"حروف بزرگ",
+    lower:"حروف کوچک",
+    titlecase:"حرف اول کلمات",
+    chars:"تعداد حروف",
+    countWords:"تعداد کلمات",
+    lines:"تعداد خطوط",
+    type:"نوع تبدیل",
+    from:"از",
+    to:"به",
+    value:"مقدار",
+    convert:"تبدیل",
+    color:"رنگ",
+    hex:"کد HEX",
+    copy:"کپی",
+    url:"آدرس لینک",
+    check:"بررسی لینک",
+    open:"بازکردن لینک",
+    valid:"ساختار آدرس معتبر است.",
+    invalid:"آدرس نامعتبر است.",
+    title:"عنوان یادداشت",
+    note:"متن یادداشت...",
+    save:"ذخیره",
+    saved:"یادداشت ذخیره شد.",
+    load:"بارگذاری",
+    password:"گذرواژه",
+    encrypt:"رمزگذاری",
+    decrypt:"رمزگشایی",
+    cryptoHint:"گذرواژه را فراموش نکن؛ بدون آن ممکن است نتوانی متن را بازیابی کنی.",
+    file:"انتخاب عکس",
+    quality:"کیفیت",
+    compress:"فشرده‌سازی",
+    download:"دریافت عکس",
+    choose:"ابتدا یک عکس انتخاب کن.",
+    original:"حجم اولیه",
+    newSize:"حجم جدید",
+    result:"نتیجه",
+    copied:"کپی شد!",
+    noTools:"ابزاری پیدا نشد.",
+    error:"عملیات ناموفق بود.",
+    unitLength:"طول",
+    unitWeight:"وزن",
+    unitTemp:"دما",
+    cryptoFailed:"رمزگشایی ناموفق بود.",
+    noNote:"یادداشتی ذخیره نشده است.",
+    tooLarge:"پردازش تصویر ناموفق بود."
+  },
+
+  en: {
+    welcome:"Your Digital Toolbox 💛",
+    subtitle:"Ten useful tools in one simple, fast place.",
+    search:"Search tools...",
+    clear:"Clear",
+    back:"← Back",
+    calc:"Math expression",
+    calculate:"Calculate",
+    bad:"Invalid expression.",
+    qr:"Text or URL",
+    make:"Create QR Code",
+    qrError:"Unable to load the QR Code library.",
+    length:"Password length",
+    symbols:"Include symbols?",
+    yes:"Yes",
+    no:"No",
+    generate:"Generate",
+    text:"Enter your text",
+    upper:"UPPERCASE",
+    lower:"lowercase",
+    titlecase:"Title Case",
+    chars:"Characters",
+    countWords:"Words",
+    lines:"Lines",
+    type:"Conversion type",
+    from:"From",
+    to:"To",
+    value:"Value",
+    convert:"Convert",
+    color:"Color",
+    hex:"HEX code",
+    copy:"Copy",
+    url:"Link URL",
+    check:"Check URL",
+    open:"Open link",
+    valid:"URL structure is valid.",
+    invalid:"Invalid URL.",
+    title:"Note title",
+    note:"Write your note...",
+    save:"Save",
+    saved:"Note saved.",
+    load:"Load",
+    password:"Password",
+    encrypt:"Encrypt",
+    decrypt:"Decrypt",
+    cryptoHint:"Do not forget your password; you may not be able to recover the text without it.",
+    file:"Choose image",
+    quality:"Quality",
+    compress:"Compress",
+    download:"Download image",
+    choose:"Choose an image first.",
+    original:"Original size",
+    newSize:"New size",
+    result:"Result",
+    copied:"Copied!",
+    noTools:"No tools found.",
+    error:"The operation failed.",
+    unitLength:"Length",
+    unitWeight:"Weight",
+    unitTemp:"Temperature",
+    cryptoFailed:"Decryption failed.",
+    noNote:"No saved note.",
+    tooLarge:"Image processing failed."
+  }
+};
+
+let lang = "fa";
+let active = null;
+
+const $ = id => document.getElementById(id);
+const tr = key => words[lang][key] || key;
+
+function renderGrid() {
+  const query = $("search").value.trim().toLocaleLowerCase();
+
+  const list = tools.filter(t =>
+    (t[lang] + " " + t[lang === "fa" ? "df" : "de"])
+      .toLocaleLowerCase()
+      .includes(query)
+  );
+
+  $("grid").innerHTML = list.map(t => `
+    <button class="card" data-id="${t.id}">
+      <div class="icon">${t.icon}</div>
+      <h3>${t[lang]}</h3>
+      <p>${t[lang === "fa" ? "df" : "de"]}</p>
+    </button>
+  `).join("");
+
+  if (!list.length) {
+    $("grid").innerHTML =
+      `<div class="empty">${tr("noTools")}</div>`;
+  }
+
+  document.querySelectorAll("[data-id]").forEach(button => {
+    button.onclick = () => openTool(button.dataset.id);
+  });
+}
+
+function changeLang() {
+  lang = lang === "fa" ? "en" : "fa";
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+
+  $("language").textContent = lang === "fa" ? "English" : "فارسی";
+  $("welcome").textContent = tr("welcome");
+  $("subtitle").textContent = tr("subtitle");
+  $("search").placeholder = tr("search");
+  $("clear").textContent = tr("clear");
+  $("back").textContent = tr("back");
+
+  renderGrid();
+
+  if (active) {
+    openTool(active, false);
+  }
+}
+
+$("language").onclick = changeLang;
+
+$("search").addEventListener("input", renderGrid);
+
+$("clear").onclick = () => {
+  $("search").value = "";
+  renderGrid();
+  $("search").blur();
+};
+
+$("back").onclick = () => {
+  $("tool").style.display = "none";
+  $("grid").style.display = "grid";
+  $("heroVisibility");
+  active = null;
+};
+
+function openTool(id, reset = true) {
+  active = id;
+
+  $("grid").style.display = "none";
+  $("tool").style.display = "block";
+
+  $("toolTitle").textContent =
+    tools.find(t => t.id === id)[lang];
+
+  const field = (label, html) =>
+    `<div class="field"><label>${label}</label>${html}</div>`;
+
+  const inp = (id, placeholder = "", type = "text", extra = "") =>
+    `<input id="${id}" type="${type}" placeholder="${placeholder}" ${extra}>`;
+
+  const area = (id, placeholder = "") =>
+    `<textarea id="${id}" placeholder="${placeholder}"></textarea>`;
+
+  const btn = (id, label, cls = "") =>
+    `<button id="${id}" class="${cls}">${label}</button>`;
+
+  const res = (id = "result") =>
+    `<div class="result" id="${id}"></div>`;
+
+  let html = "";
+
+  if (id === "calc") {
+    html =
+      field(tr("calc"), inp("expr", "12*(3+4)")) +
+      btn("run", tr("calculate")) +
+      res();
+  }
+
+  if (id === "qr") {
+    html =
+      field(tr("qr"), area("qrText", "https://example.com")) +
+      btn("makeQr", tr("make")) +
+      '<div id="qr"></div>';
+  }
+
+  if (id === "pass") {
+    html =
+      field(tr("length"),
+        inp("plen", "", "number",
+          'value="16" min="8" max="128"')) +
+
+      field(tr("symbols"),
+        `<select id="symbols">
+          <option value="yes">${tr("yes")}</option>
+          <option value="no">${tr("no")}</option>
+        </select>`) +
+
+      btn("gen", tr("generate")) +
+      res("passResult") +
+      btn("copyPass", tr("copy"), "secondary");
+  }
+
+  if (id === "text") {
+    html =
+      field(tr("text"), area("txt")) +
+
+      `<div class="actions">
+        ${btn("upper", tr("upper"), "secondary")}
+        ${btn("lower", tr("lower"), "secondary")}
+        ${btn("titlecase", tr("titlecase"), "secondary")}
+      </div>` +
+
+      `<p>
+        ${tr("chars")}: <b id="chars">0</b>
+        · ${tr("countWords")}: <b id="wc">0</b>
+        · ${tr("lines")}: <b id="lc">0</b>
+      </p>` +
+
+      btn("copyText", tr("copy"), "secondary");
+  }
+
+  if (id === "unit") {
+    html =
+      field(tr("type"),
+        `<select id="ut">
+          <option value="length">${tr("unitLength")}</option>
+          <option value="weight">${tr("unitWeight")}</option>
+          <option value="temp">${tr("unitTemp")}</option>
+        </select>`) +
+
+      field(tr("value"), inp("uv", "", "number", 'value="1"')) +
+
+      field(tr("from"), '<select id="uf"></select>') +
+      field(tr("to"), '<select id="uo"></select>') +
+
+      btn("convert", tr("convert")) +
+      res();
+  }
+
+  if (id === "color") {
+    html =
+      field(tr("color"),
+        inp("ci", "", "color", 'value="#facc15"')) +
+
+      field(tr("hex"),
+        inp("hex", "#facc15")) +
+
+      '<div id="preview" style="background:#facc15"></div>' +
+      btn("copyHex", tr("copy"), "secondary");
+  }
+
+  if (id === "link") {
+    html =
+      field(tr("url"),
+        inp("url", "https://example.com")) +
+
+      `<div class="actions">
+        ${btn("check", tr("check"))}
+        ${btn("open", tr("open"), "secondary")}
+      </div>` +
+
+      '<div id="status" class="result"></div>';
+  }
+
+  if (id === "note") {
+    html =
+      field(tr("title"), inp("nt")) +
+
+      field(tr("note"), area("noteText", tr("note"))) +
+
+      `<div class="actions">
+        ${btn("save", tr("save"))}
+        ${btn("load", tr("load"), "secondary")}
+      </div>` +
+
+      '<div id="status" class="result"></div>';
+  }
+
+  if (id === "crypto") {
+    html =
+      field(tr("password"), inp("cp", "", "password")) +
+
+      field(tr("text"), area("cryptoText")) +
+
+      `<div class="actions">
+        ${btn("encrypt", tr("encrypt"))}
+        ${btn("decrypt", tr("decrypt"), "secondary")}
+      </div>` +
+
+      `<label>${tr("result")}</label>` +
+      res("cryptoResult") +
+
+      `<p>${tr("cryptoHint")}</p>`;
+  }
+
+  if (id === "image") {
+    html =
+      field(tr("file"),
+        inp("file", "", "file", 'accept="image/*"')) +
+
+      `<div class="field">
+        <label>
+          ${tr("quality")}:
+          <span id="qv">0.75</span>
+        </label>
+        <input id="quality" type="range"
+          min=".2" max="1" step=".05" value=".75">
+      </div>` +
+
+      btn("compress", tr("compress")) +
+
+      '<div id="imgStatus" class="result"></div>' +
+      '<div id="imgResult"></div>';
+  }
+
+  $("content").innerHTML = html;
+
+  if (reset) {
+    $("tool").scrollTop = 0;
+  }
+
+  const on = (id, event, fn) => {
+    if ($(id)) $(id).addEventListener(event, fn);
+  };
+
+  const copy = async value => {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = value;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+
+      document.body.appendChild(ta);
+      ta.select();
+
+      document.execCommand("copy");
+      ta.remove();
+    }
+
+    alert(tr("copied"));
+  };
+
+  /* Calculator */
+
+  if (id === "calc") {
+    on("run", "click", () => {
+      try {
+        const expression = $("expr").value.trim();
+
+        if (
+          !expression ||
+          !/^[0-9+\-*/().%\s]+$/.test(expression)
+        ) {
+          throw new Error();
+        }
+
+        const result = Function(
+          '"use strict"; return (' + expression + ')'
+        )();
+
+        if (!Number.isFinite(result)) {
+          throw new Error();
+        }
+
+        $("result").textContent = result;
+      } catch {
+        $("result").textContent = tr("bad");
+      }
+    });
+  }
+
+  /* QR Code */
+
+  if (id === "qr") {
+    on("makeQr", "click", () => {
+      if (!window.QRCode) {
+        $("qr").textContent = tr("qrError");
+        return;
+      }
+
+      const value = $("qrText").value.trim();
+
+      if (!value) {
+        $("qr").textContent = tr("bad");
+        return;
+      }
+
+      $("qr").innerHTML = "";
+
+      new QRCode($("qr"), {
+        text: value,
+        width: 200,
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    });
+  }
+
+  /* Password generator */
+
+  if (id === "pass") {
+    on("gen", "click", () => {
+      let chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
+      if ($("symbols").value === "yes") {
+        chars += "!@#$%^&*()-_=+";
+      }
+
+      const length = Math.max(
+        8,
+        Math.min(128, Number($("plen").value) || 16)
+      );
+
+      const random = new Uint32Array(length);
+      crypto.getRandomValues(random);
+
+      $("passResult").textContent =
+        Array.from(random, n => chars[n % chars.length]).join("");
+    });
+
+    on("copyPass", "click", () => {
+      if ($("passResult").textContent) {
+        copy($("passResult").textContent);
+      }
+    });
+  }
+
+  /* Text tools */
+
+  if (id === "text") {
+    const update = () => {
+      const valu
