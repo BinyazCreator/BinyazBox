@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="BINYAZ BOX — Your everyday creative toolbox">
+<link rel="manifest" href="./manifest.json">
+<title>BINYAZ BOX</title>
+
+<style>
+:root {
+  --bg:#090909;
+  --panel:#141414;
+  --panel2:#1c1c1c;
+  --yellow:#ffd600;
+  --text:#fff;
+  --muted:#999;
+  --border:#292929;
+  --radius:22px;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Tahoma,Arial,sans-serif;
+  padding-bottom:100px;
+}
+button,input,textarea,select {font:inherit}
+button {cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible {
+  outline:2px solid var(--yellow);
+  outline-offset:3px;
+}
+button:disabled {opacity:.5;cursor:not-allowed}
+header {
+  position:sticky;
+  top:0;
+  z-index:10;
+  padding:16px;
+  background:#090909ed;
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.logo {font-size:21px;font-weight:900;letter-spacing:-1px}
+.logo span {color:var(--yellow)}
+.icon-btn {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  color:white;
+  border-radius:14px;
+  padding:10px 13px;
+}
+.wrap {max-width:1100px;margin:auto;padding:18px 16px}
+.hero {
+  background:linear-gradient(135deg,#282300,#151515 60%);
+  border:1px solid #514500;
+  padding:25px 22px;
+  border-radius:28px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:after {
+  content:"✦";
+  position:absolute;
+  left:16px;
+  top:2px;
+  font-size:100px;
+  color:#ffd60018;
+}
+.eyebrow {
+  color:var(--yellow);
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+h1 {font-size:30px;line-height:1.4;margin:13px 0}
+.hero p {color:#ccc;line-height:1.9;font-size:14px}
+.yellow-btn {
+  border:0;
+  background:var(--yellow);
+  color:#111;
+  padding:13px 18px;
+  border-radius:14px;
+  font-weight:bold;
+}
+.search {
+  width:100%;
+  background:var(--panel);
+  color:white;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:16px;
+  margin:20px 0 12px;
+}
+.section-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:28px 0 15px;
+}
+.section-head h2 {font-size:19px;margin:0}
+.section-head small {color:var(--muted)}
+.chips {
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding:3px 0 10px;
+  scrollbar-width:none;
+}
+.chip {
+  white-space:nowrap;
+  padding:10px 14px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:#ddd;
+  border-radius:30px;
+}
+.chip.active {background:var(--yellow);color:#111;border-color:var(--yellow)}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.tool-card {
+  text-align:start;
+  color:white;
+  border:1px solid var(--border);
+  background:linear-gradient(145deg,#1b1b1b,#101010);
+  border-radius:21px;
+  padding:17px 14px;
+  min-height:155px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:14px;
+  transition:transform .15s,border-color .15s;
+}
+.tool-card:active {transform:scale(.98)}
+.tool-card:hover {border-color:#6c5b00}
+.card-top {display:flex;justify-content:space-between;align-items:center;gap:5px}
+.tool-icon {
+  display:grid;
+  place-items:center;
+  width:46px;height:46px;
+  border-radius:15px;
+  background:#ffd60016;
+  font-size:24px;
+}
+.star {background:none;border:0;color:#777;font-size:20px;padding:3px}
+.star.on {color:var(--yellow)}
+.tool-card h3 {font-size:14px;line-height:1.8;margin:0}
+.tool-card p {font-size:11px;line-height:1.7;color:var(--muted);margin:5px 0 0}
+.tag {font-size:10px;color:var(--yellow)}
+.page {display:none}
+.page.active {display:block}
+.bottom-nav {
+  position:fixed;
+  z-index:20;
+  bottom:0;left:0;right:0;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  background:#101010f5;
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-around;
+}
+.nav-btn {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  border:0;
+  background:transparent;
+  color:#858585;
+  min-width:62px;
+  font-size:10px;
+}
+.nav-btn b {font-size:21px;font-weight:normal}
+.nav-btn.active {color:var(--yellow)}
+.screen-title {font-size:26px;margin:5px 0 8px}
+.subtext {color:var(--muted);font-size:13px;line-height:1.8}
+.empty {
+  padding:35px 15px;
+  text-align:center;
+  color:var(--muted);
+  background:var(--panel);
+  border-radius:20px;
+}
+.modal {
+  position:fixed;inset:0;z-index:50;
+  background:#000c;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal.open {display:flex}
+.sheet {
+  width:100%;
+  max-width:650px;
+  max-height:92dvh;
+  overflow:auto;
+  background:#111;
+  border:1px solid #333;
+  border-radius:27px 27px 0 0;
+  padding:23px 18px calc(25px + env(safe-area-inset-bottom));
+}
+.sheet-head {
+  display:flex;justify-content:space-between;align-items:center;gap:10px
+}
+.sheet h2 {font-size:21px}
+.close {
+  background:#262626;color:white;border:0;
+  border-radius:12px;padding:10px 13px;
+}
+.field {margin:17px 0}
+.field label {display:block;color:#ccc;font-size:13px;margin-bottom:9px}
+.field input,.field textarea,.field select {
+  width:100%;background:#1c1c1c;color:white;
+  border:1px solid #333;border-radius:13px;padding:13px;
+}
+.field textarea {min-height:120px;resize:vertical;line-height:1.9}
+.result {
+  width:100%;min-height:120px;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  background:#1b1b1b;border:1px solid #333;
+  border-radius:15px;padding:15px;line-height:1.9;
+}
+.actions {display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.secondary {
+  background:#242424;color:white;border:1px solid #393939;
+  padding:12px 15px;border-radius:13px;
+}
+.toast {
+  position:fixed;z-index:90;bottom:95px;left:50%;
+  transform:translateX(-50%);
+  background:var(--yellow);color:#111;
+  padding:12px 18px;border-radius:13px;
+  font-size:13px;font-weight:bold;
+  display:none;max-width:90%;text-align:center;
+}
+.footer {text-align:center;color:#777;font-size:11px;margin:30px 0 10px}
+[dir="ltr"] .tool-card,[dir="ltr"] .sheet {text-align:left}
+@media(min-width:600px) {
+  .grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .wrap {padding:24px}
+  .hero {padding:35px}
+  h1 {font-size:38px}
+  .tool-card {min-height:175px;padding:20px}
+  .modal {align-items:center;padding:20px}
+  .sheet {border-radius:25px}
+}
+@media(min-width:900px) {
+  .grid {grid-template-columns:repeat(4,minmax(0,1fr))}
+  header {padding-inline:max(20px,calc((100vw - 1100px)/2))}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="top">
+    <div class="logo">BINYAZ <span>BOX.</span></div>
+    <div style="display:flex;gap:8px">
+      <button class="icon-btn" id="langBtn" aria-label="Change language">EN</button>
+      <button class="icon-btn" id="installBtn" hidden>＋ Install</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="homePage" class="page active">
+    <div class="hero">
+      <div class="eyebrow">YOUR CREATIVE TOOLBOX</div>
+      <h1 data-i="heroTitle">یه جعبه ابزار، کلی امکان!</h1>
+      <p data-i="heroDesc">ابزارهای روزمره، پرامپت‌های خلاقانه و امکانات کاربردی؛ همه در یک جا.</p>
+      <button class="yellow-btn" data-go="explore" data-i="exploreNow">بزن بریم Explorey ↗</button>
+    </div>
+    <input class="search" id="homeSearch" placeholder="🔎 جست‌وجوی ابزار..." data-placeholder="search">
+    <div class="section-head"><h2 data-i="popular">⭐ ابزارهای پیشنهادی</h2><small id="toolCount"></small></div>
+    <div class="grid" id="homeGrid"></div>
+    <div class="section-head"><h2 data-i="categories">🗂️ دسته‌بندی‌ها</h2></div>
+    <div class="grid" id="homeCategories"></div>
+  </section>
+
+  <section id="explorePage" class="page">
+    <h1 class="screen-title">Explorey <span style="color:var(--yellow)">✦</span></h1>
+    <p class="subtext" data-i="exploreDesc">کشف کن، امتحان کن و ابزارهای موردعلاقه‌ات را ذخیره کن.</p>
+    <input class="search" id="exploreSearch" placeholder="🔎 جست‌وجوی ابزار..." data-placeholder="search">
+    <div class="chips" id="exploreChips"></div>
+    <div class="section-head"><h2 id="exploreHeading">همه ابزارها</h2><small id="exploreCount"></small></div>
+    <div class="grid" id="exploreGrid"></div>
+  </section>
+
+  <section id="categoriesPage" class="page">
+    <h1 class="screen-title" data-i="categories">دسته‌بندی‌ها</h1>
+    <p class="subtext" data-i="categoriesDesc">دسته مناسب را انتخاب کن و ابزارهایش را ببین.</p>
+    <div class="grid" id="categoriesGrid"></div>
+  </section>
+
+  <section id="favoritesPage" class="page">
+    <h1 class="screen-title" data-i="favorites">⭐ علاقه‌مندی‌ها</h1>
+    <p class="subtext" data-i="favoritesDesc">ابزارهایی که ذخیره کرده‌ای.</p>
+    <div class="grid" id="favoritesGrid"></div>
+  </section>
+
+  <section id="settingsPage" class="page">
+    <h1 class="screen-title" data-i="settings">تنظیمات</h1>
+    <div class="tool-card" style="min-height:0;margin-top:20px">
+      <h3 data-i="language">زبان برنامه</h3>
+      <p data-i="languageDesc">زبان رابط کاربری را تغییر بده.</p>
+      <button class="yellow-btn" id="langBtn2">فارسی / English</button>
+    </div>
+    <div class="tool-card" style="min-height:0;margin-top:15px">
+      <h3 data-i="dataTitle">اطلاعات ذخیره‌شده</h3>
+      <p data-i="dataDesc">علاقه‌مندی‌ها و یادداشت‌ها روی همین دستگاه ذخیره می‌شوند.</p>
+      <button class="secondary" id="exportBtn" data-i="export">خروجی گرفتن از یادداشت‌ها</button>
+    </div>
+    <div class="tool-card" style="min-height:0;margin-top:15px">
+      <h3>BINYAZ BOX</h3>
+      <p>Version 1.0 · Offline-ready tools</p>
+    </div>
+  </section>
+  <div class="footer">BINYAZ BOX · Made for creators ✦</div>
+</main>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="nav-btn active" data-page="home"><b>⌂</b><span data-i="home">خانه</span></button>
+  <button class="nav-btn" data-page="explore"><b>⌕</b><span>Explorey</span></button>
+  <button class="nav-btn" data-page="categories"><b>▦</b><span data-i="categories">دسته‌بندی</span></button>
+  <button class="nav-btn" data-page="favorites"><b>☆</b><span data-i="favorites">علاقه‌مندی</span></button>
+  <button class="nav-btn" data-page="settings"><b>⚙</b><span data-i="settings">تنظیمات</span></button>
+</nav>
+
+<div class="modal" id="toolModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="modalTitle">ابزار</h2>
+      <button class="close" id="closeModal" aria-label="Close">✕</button>
+    </div>
+    <p class="subtext" id="modalDesc"></p>
+    <div id="toolForm"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const i18n = {
+fa:{
+heroTitle:"یه جعبه ابزار، کلی امکان!",
+heroDesc:"ابزارهای روزمره، پرامپت‌های خلاقانه و امکانات کاربردی؛ همه در یک جا.",
+exploreNow:"بزن بریم Explorey ↗",
+popular:"⭐ ابزارهای پیشنهادی",
+categories:"🗂️ دسته‌بندی‌ها",
+exploreDesc:"کشف کن، امتحان کن و ابزارهای موردعلاقه‌ات را ذخیره کن.",
+categoriesDesc:"دسته مناسب را انتخاب کن و ابزارهایش را ببین.",
+favorites:"⭐ علاقه‌مندی‌ها",favoritesDesc:"ابزارهایی که ذخیره کرده‌ای.",
+settings:"تنظیمات",home:"خانه",language:"زبان برنامه",
+languageDesc:"زبان رابط کاربری را تغییر بده.",
+dataTitle:"اطلاعات ذخیره‌شده",
+dataDesc:"علاقه‌مندی‌ها و یادداشت‌ها روی همین دستگاه ذخیره می‌شوند.",
+export:"خروجی گرفتن از یادداشت‌ها",search:"جست‌وجوی ابزار...",
+all:"همه ابزارها",noTools:"ابزاری پیدا نشد.",saved:"ذخیره شد ⭐",
+copied:"کپی شد!",required:"این فیلد را کامل کن.",
+generate:"ساختن",copy:"کپی",save:"ذخیره",clear:"پاک کردن",
+input:"متن ورودی",output:"نتیجه",category:"دسته",
+noteTitle:"عنوان یادداشت",noteText:"متن یادداشت",
+promptHint:"موضوع یا جزئیات دلخواهت را بنویس",
+randomHint:"تعداد یا محدوده را وارد کن",
+done:"انجام شد",emptyFav:"هنوز ابزاری ذخیره نکرده‌ای.",
+wordCount:"کلمه",charCount:"حرف",bytes:"بایت",
+pickText:"متن را وارد کن",firstText:"متن اول",secondText:"متن دوم",
+amount:"مقدار",from:"از",to:"به",result:"نتیجه",
+copyPrompt:"کپی پرامپت",editPrompt:"جزئیات را ویرایش کن",
+offlineNote:"این ابزار در مرورگر اجرا می‌شود؛ برای تولید تصویر باید پرامپت را در سرویس تصویرساز دلخواهت استفاده کنی.",
+toolReady:"ابزار آماده است."
+},
+en:{
+heroTitle:"One toolbox. Endless possibilities.",
+heroDesc:"Everyday utilities, creative prompts and useful tools — all in one place.",
+exploreNow:"Explorey ↗",popular:"⭐ Featured tools",
+categories:"🗂️ Categories",
+exploreDesc:"Discover tools, try them and save your favourites.",
+categoriesDesc:"Choose a category to explore its tools.",
+favorites:"⭐ Favorites",favoritesDesc:"Tools you have saved.",
+settings:"Settings",home:"Home",language:"App language",
+languageDesc:"Change the interface language.",
+dataTitle:"Your saved data",
+dataDesc:"Favorites and notes are stored on this device.",
+export:"Export notes",search:"Search tools...",
+all:"All tools",noTools:"No tools found.",saved:"Saved ⭐",
+copied:"Copied!",required:"Please fill in this field.",
+generate:"Generate",copy:"Copy",save:"Save",clear:"Clear",
+input:"Input text",output:"Result",category:"Category",
+noteTitle:"Note title",noteText:"Note text",
+promptHint:"Enter your topic or desired details",
+randomHint:"Enter a quantity or range",done:"Done",
+emptyFav:"You haven't saved any tools yet.",
+wordCount:"words",charCount:"characters",bytes:"bytes",
+pickText:"Enter text",firstText:"First text",secondText:"Second text",
+amount:"Amount",from:"From",to:"To",result:"Result",
+copyPrompt:"Copy prompt",editPrompt:"Edit details",
+offlineNote:"This tool runs in your browser. To generate an image, use the prompt in your preferred image-generation service.",
+toolReady:"Tool is ready."
+}
+};
+
+let lang = localStorage.getItem("bb_lang") || "fa";
+let favorites = new Set(JSON.parse(localStorage.getItem("bb_favs") || "[]"));
+let notes = JSON.parse(localStorage.getItem("bb_notes") || "[]");
+let currentCategory = "all";
+let currentTool = null;
+let installPrompt = null;
+
+const categories = [
+{id:"image",icon:"🎨",fa:"پرامپت عکس",en:"Image Prompts",color:""},
+{id:"banner",icon:"🖼️",fa:"بنر و پوستر",en:"Banners & Posters"},
+{id:"text",icon:"✍️",fa:"متن و کپشن",en:"Text & Captions"},
+{id:"daily",icon:"🛠️",fa:"ابزار روزمره",en:"Daily Utilities"},
+{id:"dev",icon:"💻",fa:"برنامه‌نویسی",en:"Developer Tools"},
+{id:"social",icon:"📱",fa:"تولید محتوا",en:"Creator Tools"},
+{id:"notes",icon:"🗒️",fa:"یادداشت و مدیریت",en:"Notes & Management"}
+];
+
+const tools = [];
+function add(id,cat,icon,fa,en,type="text",extra={}) {
+  tools.push({id,cat,icon,fa,en,type,...extra});
+}
+
+/* 1–15: Image prompts */
+[
+["family","👨‍👩‍👧","عکس یادگاری خانوادگی","Family Keepsake Photo","family"],
+["couple","💑","عکس کاپلی","Couple Portrait","couple"],
+["duo","🫶","عکس دونفره صمیمی","Close Duo Portrait","duo"],
+["friends","🧑‍🤝‍🧑","عکس رفاقتی","Friendship Portrait","friends"],
+["birthday","🎂","عکس تولد","Birthday Portrait","birthday"],
+["graduation","🎓","عکس فارغ‌التحصیلی","Graduation Photo","graduation"],
+["cinematic","🎬","پرتره سینمایی","Cinematic Portrait","cinematic"],
+["profile","📸","عکس پروفایل","Profile Picture","profile"],
+["bw","⚫","عکس سیاه‌وسفید","Black & White Photo","bw"],
+["nostalgia","📼","عکس نوستالژیک","Nostalgic Photo","nostalgia"],
+["street","🌃","عکس خیابانی","Street Photography","street"],
+["studio","💡","عکس استودیویی","Studio Portrait","studio"],
+["traditional","🧵","عکس با لباس سنتی","Traditional Outfit","traditional"],
+["movie","🎞️","پوستر فیلم","Movie Poster","movie"],
+["musiccover","🎧","کاور موسیقی","Music Cover Art","musiccover"]
+].forEach(([id,icon,fa,en,style])=>add(id,"image",icon,fa,en,"prompt",{style}));
+
+/* 16–30: Banners and posters */
+[
+["joy","🎉","بنر شادی","Celebration Banner","joy"],
+["memorial","🕯️","بنر مراسم ختم و یادبود","Memorial Banner","memorial"],
+["condolence","🖤","بنر تسلیت","Condolence Banner","condolence"],
+["bdaybanner","🎂","بنر تولد","Birthday Banner","bdaybanner"],
+["wedding","💍","بنر عروسی","Wedding Banner","wedding"],
+["adbanner","📣","بنر تبلیغاتی","Advertising Banner","adbanner"],
+["sale","🏷️","پوستر فروش","Sale Poster","sale"],
+["instabanner","📱","بنر اینستاگرام","Instagram Banner","instabanner"],
+["youtube","▶️","کاور یوتیوب","YouTube Cover","youtube"],
+["concert","🎤","پوستر کنسرت","Concert Poster","concert"],
+["religious","🌙","پوستر مذهبی","Religious Poster","religious"],
+["event","📅","پوستر مناسبتی","Event Poster","event"],
+["opening","🏪","بنر افتتاحیه","Grand Opening Banner","opening"],
+["sport","🏆","پوستر ورزشی","Sports Poster","sport"],
+["invite","💌","کارت دعوت","Invitation Card","invite"]
+].forEach(([id,icon,fa,en,style])=>add(id,"banner",icon,fa,en,"prompt",{style}));
+
+/* 31–45: Text creation */
+[
+["bio","👤","سازنده بیو","Bio Idea Generator","bio"],
+["caption","✏️","سازنده کپشن","Caption Ideas","caption"],
+["congrats","🎊","متن تبریک","Congratulations Text","congrats"],
+["condolencetext","🕊️","متن تسلیت","Condolence Message","condolencetext"],
+["thanks","🙏","متن تشکر","Thank-you Message","thanks"],
+["invitetext","💌","متن دعوت‌نامه","Invitation Text","invitetext"],
+["adcopy","📢","متن تبلیغاتی","Ad Copy Ideas","adcopy"],
+["title","💡","عنوان جذاب","Title Ideas","title"],
+["hashtags","#️⃣","سازنده هشتگ","Hashtag Generator","hashtags"],
+["username","🔤","نام کاربری","Username Ideas","username"],
+["channelname","📡","اسم کانال","Channel Name Ideas","channelname"],
+["slogan","✨","شعار تبلیغاتی","Slogan Ideas","slogan"],
+["productdesc","📦","معرفی محصول","Product Description","productdesc"],
+["storytext","📲","متن استوری","Story Text Ideas","storytext"],
+["videoideas","🎥","ایده ویدئو","Video Ideas","videoideas"]
+].forEach(([id,icon,fa,en,style])=>add(id,"text",icon,fa,en,"prompt",{style}));
+
+/* 46–60: Daily utilities */
+[
+["calculator","🧮","ماشین‌حساب","Calculator","calculator"],
+["password","🔐","تولید رمز عبور","Password Generator","password"],
+["strength","🛡️","بررسی قدرت رمز","Password Strength Checker","strength"],
+["qrcode","▦","ساخت QR Code","QR Code Generator","qr"],
+["wordcount","🔢","شمارش کلمات و حروف","Word & Character Counter","wordcount"],
+["compare","⚖️","مقایسه دو متن","Text Comparison","compare"],
+["case","🔠","تغییر حروف","Text Case Converter","case"],
+["sortlines","↕️","مرتب‌سازی خطوط","Sort Lines","sortlines"],
+["cleantext","🧹","حذف فاصله اضافی","Clean Text","cleantext"],
+["units","📐","تبدیل واحدها","Unit Converter","units"],
+["datecalc","📆","محاسبه اختلاف تاریخ","Date Difference","datecalc"],
+["stopwatch","⏱️","کرنومتر","Stopwatch","stopwatch"],
+["timer","⏳","تایمر","Timer","timer"],
+["random","🎲","عدد تصادفی","Random Number","random"],
+["imagecompress","🗜️","فشرده‌سازی تصویر","Image Compressor","imagecompress"]
+].forEach(([id,icon,fa,en,type])=>add(id,"daily",icon,fa,en,type==="prompt"?"prompt":type==="calculator"?"calculator":type==="password"?"password":type==="strength"?"strength":type==="qr"?"qr":type==="wordcount"?"wordcount":type==="compare"?"compare":type==="case"?"case":type==="sortlines"?"sortlines":type==="cleantext"?"cleantext":type==="units"?"units":type==="datecalc"?"datecalc":type==="stopwatch"?"stopwatch":type==="timer"?"timer":type==="random"?"random":type==="imagecompress"?"imagecompress":"text"));
+
+/* 61–70: Developer utilities */
+[
+["jsonformat","{ }","قالب‌بندی JSON","JSON Formatter","jsonformat"],
+["jsonvalidate","✓","اعتبارسنجی JSON","JSON Validator","jsonvalidate"],
+["base64encode","🔡","Base64 Encode","Base64 Encode","b64e"],
+["base64decode","🔤","Base64 Decode","Base64 Decode","b64d"],
+["urlencode","🔗","رمزگذاری URL","URL Encode","urlencode"],
+["urldecode","🔓","رمزگشایی URL","URL Decode","urldecode"],
+["uuid","🆔","ساخت UUID","UUID Generator","uuid"],
+["unix","🕒","تبدیل زمان Unix","Unix Timestamp","unix"],
+["sampledata","🧪","داده آزمایشی","Sample Data Generator","samp
