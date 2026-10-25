@@ -527,4 +527,596 @@ function add(id,cat,icon,fa,en,type="text",extra={}) {
 ["urldecode","🔓","رمزگشایی URL","URL Decode","urldecode"],
 ["uuid","🆔","ساخت UUID","UUID Generator","uuid"],
 ["unix","🕒","تبدیل زمان Unix","Unix Timestamp","unix"],
-["sampledata","🧪","داده آزمایشی","Sample Data Generator","samp
+["sampledata","🧪","داده آزمایشی","Sample Data Generator","sampledata"],
+["regex",".*","آزمایش Regex","Regex Tester","regex"]
+].forEach(([id,icon,fa,en,type])=>add(id,"dev",icon,fa,en,type));
+
+/* 71–80: Creator and management tools */
+[
+["notes","🗒️","دفترچه یادداشت","Notes","notes"],
+["snippets","📌","متن‌های ذخیره‌شده","Saved Snippets","snippets"],
+["links","🔗","مدیریت لینک‌ها","Link Manager","links"],
+["prompts","🎨","پرامپت‌های ذخیره‌شده","Saved Prompts","prompts"],
+["storytemplate","📱","قالب استوری","Story Template","storytemplate"],
+["biotemplate","👤","قالب بیو","Bio Template","biotemplate"],
+["engagement","📈","نرخ تعامل","Engagement Rate","engagement"],
+["todo","☑️","فهرست کارها","To-do List","todo"],
+["textformat","📝","تبدیل فرمت متن","Text Formatter","textformat"],
+["imageinfo","🖼️","اطلاعات تصویر","Image Info","imageinfo"]
+].forEach(([id,icon,fa,en,type])=>add(id,"social",icon,fa,en,type));
+
+/* Extra tools to exceed 80 */
+[
+["lorem","📄","متن نمونه","Lorem Text Generator","lorem"],
+["reverse","↩️","معکوس کردن متن","Reverse Text","reverse"],
+["duplicate","📑","حذف خطوط تکراری","Remove Duplicate Lines","duplicate"],
+["percentage","％","محاسبه درصد","Percentage Calculator","percentage"],
+["average","➗","میانگین اعداد","Average Calculator","average"],
+["hex","🎨","تبدیل رنگ HEX و RGB","HEX / RGB Converter","hex"],
+["jsonescape","🧩","Escape متن JSON","JSON Escape","jsonescape"],
+["markdown","Ⓜ️","پیش‌نمایش Markdown","Markdown Helper","markdown"],
+["base64file","📦","اطلاعات فایل Base64","Base64 Text Size","base64file"],
+["textdownload","⬇️","دانلود متن به‌صورت فایل","Text File Export","textdownload"]
+].forEach(([id,icon,fa,en,type])=>add(id,"daily",icon,fa,en,type));
+
+const tr = key => (i18n[lang]||i18n.fa)[key] || key;
+const toolName = t => t[lang] || t.fa;
+const catName = c => {
+  const x=categories.find(v=>v.id===c);
+  return x ? x[lang] : c;
+};
+function persist(){
+  localStorage.setItem("bb_favs",JSON.stringify([...favorites]));
+  localStorage.setItem("bb_notes",JSON.stringify(notes));
+}
+function toast(msg){
+  const el=$("#toast");
+  el.textContent=msg;
+  el.style.display="block";
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.style.display="none",2100);
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function applyLanguage(){
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==="fa"?"rtl":"ltr";
+  $("#langBtn").textContent=lang==="fa"?"EN":"فا";
+  $$("#langBtn2").forEach(b=>b.textContent=lang==="fa"?"فارسی / English":"English / فارسی");
+  $$("[data-i]").forEach(el=>{
+    const key=el.dataset.i;
+    if(tr(key)) el.textContent=tr(key);
+  });
+  $$("[data-placeholder]").forEach(el=>el.placeholder="🔎 "+tr(el.dataset.placeholder));
+  localStorage.setItem("bb_lang",lang);
+  renderAll();
+}
+function card(t){
+  const el=document.createElement("article");
+  el.className="tool-card";
+  const name=toolName(t);
+  el.innerHTML=`
+    <div class="card-top">
+      <div class="tool-icon">${t.icon}</div>
+      <button class="star ${favorites.has(t.id)?"on":""}" aria-label="Favorite ${escapeHTML(name)}" title="Favorite">${favorites.has(t.id)?"★":"☆"}</button>
+    </div>
+    <div>
+      <h3>${escapeHTML(name)}</h3>
+      <p>${escapeHTML(catName(t.cat))}</p>
+    </div>
+    <div class="tag">${lang==="fa"?"برای استفاده ←":"Open tool →"}</div>`;
+  el.querySelector(".star").addEventListener("click",e=>{
+    e.stopPropagation();
+    if(favorites.has(t.id))favorites.delete(t.id);else favorites.add(t.id);
+    persist();renderAll();
+    toast(tr("saved"));
+  });
+  el.addEventListener("click",()=>openTool(t));
+  return el;
+}
+function fillGrid(selector,list){
+  const el=$(selector);el.replaceChildren();
+  if(!list.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1">${tr("noTools")}</div>`;return}
+  list.forEach(t=>el.append(card(t)));
+}
+function categoryCard(c){
+  const el=document.createElement("button");
+  el.className="tool-card";
+  el.innerHTML=`<div class="tool-icon">${c.icon}</div><div><h3>${escapeHTML(c[lang])}</h3><p>${tools.filter(t=>t.cat===c.id).length} ${lang==="fa"?"ابزار":"tools"}</p></div><div class="tag">${lang==="fa"?"مشاهده ←":"Explore →"}</div>`;
+  el.addEventListener("click",()=>{currentCategory=c.id;showPage("explore");renderExplore()});
+  return el;
+}
+function renderAll(){
+  $("#toolCount").textContent=tools.length+" "+(lang==="fa"?"ابزار":"tools");
+  fillGrid("#homeGrid",tools.slice(0,8));
+  $("#homeCategories").replaceChildren(...categories.map(categoryCard));
+  $("#categoriesGrid").replaceChildren(...categories.map(categoryCard));
+  fillGrid("#favoritesGrid",tools.filter(t=>favorites.has(t.id)));
+  renderExplore();
+}
+function renderExplore(){
+  const q=$("#exploreSearch").value.toLowerCase().trim();
+  const filtered=tools.filter(t=>
+    (currentCategory==="all"||t.cat===currentCategory)&&
+    (toolName(t).toLowerCase().includes(q)||t.fa.toLowerCase().includes(q)||t.en.toLowerCase().includes(q))
+  );
+  $("#exploreHeading").textContent=currentCategory==="all"?tr("all"):catName(currentCategory);
+  $("#exploreCount").textContent=filtered.length+"";
+  fillGrid("#exploreGrid",filtered);
+  const chips=$("#exploreChips");chips.replaceChildren();
+  [{id:"all",icon:"✦",fa:"همه",en:"All"},...categories].forEach(c=>{
+    const b=document.createElement("button");b.className="chip"+(currentCategory===c.id?" active":"");
+    b.textContent=(c.icon||"✦")+" "+(c.id==="all"?c[lang]:c[lang]);
+    b.addEventListener("click",()=>{currentCategory=c.id;renderExplore()});
+    chips.append(b);
+  });
+}
+function showPage(name){
+  $$(".page").forEach(p=>p.classList.remove("active"));
+  $("#"+name+"Page").classList.add("active");
+  $$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  if(name==="favorites")fillGrid("#favoritesGrid",tools.filter(t=>favorites.has(t.id)));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$(".nav-btn").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+$$("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
+$("#homeSearch").addEventListener("input",()=>{
+  $("#exploreSearch").value=$("#homeSearch").value;
+  currentCategory="all";showPage("explore");renderExplore();
+});
+$("#exploreSearch").addEventListener("input",renderExplore);
+$("#langBtn").addEventListener("click",()=>{lang=lang==="fa"?"en":"fa";applyLanguage()});
+$("#langBtn2").addEventListener("click",()=>{lang=lang==="fa"?"en":"fa";applyLanguage()});
+$("#closeModal").addEventListener("click",closeTool);
+$("#toolModal").addEventListener("click",e=>{if(e.target.id==="toolModal")closeTool()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTool()});
+
+function closeTool(){$("#toolModal").classList.remove("open");currentTool=null}
+function field(id,label,placeholder="",type="text"){
+  return `<div class="field"><label for="${id}">${escapeHTML(label)}</label><input id="${id}" type="${type}" placeholder="${escapeHTML(placeholder)}"></div>`;
+}
+function textarea(id,label,placeholder=""){
+  return `<div class="field"><label for="${id}">${escapeHTML(label)}</label><textarea id="${id}" placeholder="${escapeHTML(placeholder)}"></textarea></div>`;
+}
+function selectField(id,label,options){
+  return `<div class="field"><label for="${id}">${escapeHTML(label)}</label><select id="${id}">${options.map(o=>`<option value="${escapeHTML(o[0])}">${escapeHTML(o[1])}</option>`).join("")}</select></div>`;
+}
+function buttons(){
+ return `<div class="actions"><button class="yellow-btn" id="runBtn">${tr("generate")}</button><button class="secondary" id="copyBtn">${tr("copy")}</button><button class="secondary" id="clearBtn">${tr("clear")}</button></div>`;
+}
+function openTool(t){
+ currentTool=t;
+ $("#modalTitle").textContent=t.icon+" "+toolName(t);
+ $("#modalDesc").textContent=catName(t.cat);
+ const form=$("#toolForm");
+ form.innerHTML="";
+ let markup="";
+ switch(t.type){
+ case "prompt":
+   markup=field("subject",lang==="fa"?"موضوع اصلی":"Main subject",tr("promptHint"))+
+   field("details",lang==="fa"?"جزئیات دلخواه (اختیاری)":"Extra details (optional)",lang==="fa"?"مثلاً نور گرم، فضای سینمایی...":"e.g. warm lighting, cinematic mood")+
+   selectField("promptLang",lang==="fa"?"زبان پرامپت":"Prompt language",[["en","English"],["fa","فارسی"]])+
+   selectField("ratio",lang==="fa"?"نسبت تصویر":"Aspect ratio",[["4:5","4:5 portrait"],["1:1","1:1 square"],["9:16","9:16 story"],["16:9","16:9 landscape"]])+
+   `<div class="result" id="result">${escapeHTML(tr("offlineNote"))}</div>`+buttons();
+   break;
+ case "password":
+   markup=field("length",lang==="fa"?"طول رمز (۴ تا ۶۴)":"Password length (4–64)","16","number")+
+   `<div class="field"><label><input id="symbols" type="checkbox" checked style="width:auto"> ${lang==="fa"?"استفاده از نمادها":"Include symbols"}</label></div>`+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "strength":
+   markup=field("value",lang==="fa"?"رمز عبور را وارد کن":"Enter password","", "password")+`<div class="result" id="result"></div>`+buttons();break;
+ case "calculator":
+   markup=field("a",lang==="fa"?"عدد اول":"First number","12","number")+
+   selectField("op",lang==="fa"?"عملیات":"Operation",[["+","+"],["-","−"],["*","×"],["/","÷"],["%","%"]])+
+   field("b",lang==="fa"?"عدد دوم":"Second number","3","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "wordcount": case "case": case "sortlines": case "cleantext":
+ case "b64e":case "b64d":case "urlencode":case "urldecode":
+ case "jsonformat":case "jsonvalidate":case "jsonescape":case "reverse":
+ case "duplicate":case "lorem":case "textformat":case "textdownload":
+ case "base64file":case "markdown":case "regex":
+   markup=textarea("value",tr("input"),tr("pickText"))+
+   (t.type==="case"?selectField("mode",lang==="fa"?"نوع تبدیل":"Conversion",[
+     ["upper",lang==="fa"?"حروف بزرگ":"UPPERCASE"],
+     ["lower",lang==="fa"?"حروف کوچک":"lowercase"],
+     ["title",lang==="fa"?"حرف اول کلمات بزرگ":"Title Case"]
+   ]):"")+
+   (t.type==="regex"?field("pattern",lang==="fa"?"عبارت Regex":"Regex pattern","\\d+"):"")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "compare":
+   markup=textarea("a",tr("firstText"))+textarea("b",tr("secondText"))+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "units":
+   markup=field("amount",tr("amount"),"1","number")+
+   selectField("unit",lang==="fa"?"تبدیل نوع":"Convert type",[
+    ["km-mi",lang==="fa"?"کیلومتر ↔ مایل":"Kilometers ↔ Miles"],
+    ["kg-lb",lang==="fa"?"کیلوگرم ↔ پوند":"Kilograms ↔ Pounds"],
+    ["c-f",lang==="fa"?"سلسیوس ↔ فارنهایت":"Celsius ↔ Fahrenheit"],
+    ["cm-in",lang==="fa"?"سانتی‌متر ↔ اینچ":"Centimeters ↔ Inches"],
+    ["m-ft",lang==="fa"?"متر ↔ فوت":"Meters ↔ Feet"],
+    ["l-gal",lang==="fa"?"لیتر ↔ گالن آمریکا":"Liters ↔ US gallons"]
+   ])+`<div class="result" id="result"></div>`+buttons();break;
+ case "random":
+   markup=field("min",lang==="fa"?"حداقل":"Minimum","1","number")+
+   field("max",lang==="fa"?"حداکثر":"Maximum","100","number")+
+   field("count",lang==="fa"?"تعداد":"Count","1","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "datecalc":
+   markup=field("a",lang==="fa"?"تاریخ اول":"First date","","date")+
+   field("b",lang==="fa"?"تاریخ دوم":"Second date","","date")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "qr":
+   markup=field("value",lang==="fa"?"متن یا لینک":"Text or URL","https://example.com")+
+   `<div class="result" id="result">${lang==="fa"?"برای ساخت QR به اینترنت نیاز است.":"An internet connection is required for QR generation."}</div>`+
+   `<div class="actions"><button class="yellow-btn" id="qrBtn">${lang==="fa"?"ساخت QR":"Generate QR"}</button></div>`;break;
+ case "notes":
+   markup=field("noteTitle",tr("noteTitle"))+textarea("noteText",tr("noteText"))+
+   `<div class="actions"><button class="yellow-btn" id="saveNote">${tr("save")}</button></div><div id="notesList"></div>`;break;
+ case "snippets":case "prompts":case "links":
+   markup=field("itemTitle",lang==="fa"?"عنوان":"Title")+
+   textarea("itemText",t.type==="links"?(lang==="fa"?"لینک":"URL"):(lang==="fa"?"متن":"Text"))+
+   `<div class="actions"><button class="yellow-btn" id="saveItem">${tr("save")}</button></div><div id="notesList"></div>`;break;
+ case "engagement":
+   markup=field("likes",lang==="fa"?"لایک":"Likes","0","number")+
+   field("comments",lang==="fa"?"کامنت":"Comments","0","number")+
+   field("shares",lang==="fa"?"اشتراک‌گذاری":"Shares","0","number")+
+   field("followers",lang==="fa"?"تعداد دنبال‌کنندگان":"Followers","1","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "todo":
+   markup=field("task",lang==="fa"?"کار جدید":"New task")+
+   `<div class="actions"><button class="yellow-btn" id="addTask">${lang==="fa"?"افزودن کار":"Add task"}</button></div><div id="notesList"></div>`;break;
+ case "stopwatch":case "timer":
+   markup=field("seconds",lang==="fa"?"مدت به ثانیه":"Duration in seconds","60","number")+
+   `<div class="result" id="clockResult">00:00</div><div class="actions"><button class="yellow-btn" id="startClock">${lang==="fa"?"شروع":"Start"}</button><button class="secondary" id="stopClock">${lang==="fa"?"توقف":"Stop"}</button><button class="secondary" id="resetClock">${lang==="fa"?"بازنشانی":"Reset"}</button></div>`;break;
+ case "imagecompress":
+   markup=`<div class="field"><label>${lang==="fa"?"انتخاب تصویر":"Choose image"}</label><input id="imageFile" type="file" accept="image/*"></div>`+
+   field("quality",lang==="fa"?"کیفیت (۰٫۱ تا ۱)":"Quality (0.1–1)","0.7","number")+
+   `<div id="imageResult"></div><div class="actions"><button class="yellow-btn" id="compressBtn">${tr("generate")}</button></div>`;break;
+ case "imageinfo":
+   markup=`<div class="field"><label>${lang==="fa"?"انتخاب تصویر":"Choose image"}</label><input id="imageFile" type="file" accept="image/*"></div><div class="result" id="result"></div>`;break;
+ case "qrcode":
+   break;
+ case "uuid":
+   markup=`<div class="result" id="result"></div>`+buttons();break;
+ case "unix":
+   markup=field("value",lang==="fa"?"زمان Unix یا خالی برای اکنون":"Unix timestamp or blank for now")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "sampledata":
+   markup=selectField("kind",lang==="fa"?"نوع داده":"Data type",[["names",lang==="fa"?"نام نمونه":"Sample names"],["emails","Emails"],["numbers",lang==="fa"?"اعداد":"Numbers"],["users",lang==="fa"?"کاربران JSON":"JSON users"]])+
+   field("count",lang==="fa"?"تعداد":"Count","5","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "percentage":
+   markup=field("a",lang==="fa"?"مقدار":"Value","25","number")+
+   field("b",lang==="fa"?"کل":"Total","100","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "average":
+   markup=textarea("value",lang==="fa"?"اعداد را با کاما یا فاصله جدا کن":"Enter numbers separated by commas or spaces","4, 8, 10")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "hex":
+   markup=field("value",lang==="fa"?"کد HEX یا RGB":"HEX or RGB color","#ffd600")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ case "lorem":
+   markup=field("count",lang==="fa"?"تعداد جمله":"Number of sentences","3","number")+
+   `<div class="result" id="result"></div>`+buttons();break;
+ default:
+   markup=textarea("value",tr("input"),tr("pickText"))+
+   `<div class="result" id="result"></div>`+buttons();
+ }
+ form.innerHTML=markup;
+ $("#toolModal").classList.add("open");
+ wireTool(t);
+}
+function val(id){return $("#"+id)?.value??""}
+function out(text){
+ const r=$("#result");
+ if(r)r.textContent=String(text);
+}
+function wireTool(t){
+ const $id=id=>$("#"+id);
+ const on=(id,event,fn)=>{if($id(id))$id(id).addEventListener(event,fn)};
+ let clockInterval=null,clockRemaining=0;
+ on("runBtn","click",()=>{
+  try{
+   let result="";
+   const text=val("value");
+   switch(t.type){
+    case "prompt":result=makePrompt(t,val("subject"),val("details"),val("promptLang"),val("ratio"));break;
+    case "password":{
+     let n=Math.max(4,Math.min(64,parseInt(val("length"))||16));
+     const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"+($id("symbols")?.checked?"!@#$%&*_-+=":"");
+     const arr=new Uint32Array(n);crypto.getRandomValues(arr);
+     result=Array.from(arr,x=>chars[x%chars.length]).join("");break;
+    }
+    case "strength":{
+     const p=val("value");let score=0;
+     if(p.length>=8)score++;if(p.length>=12)score++;
+     if(/[a-z]/.test(p)&&/[A-Z]/.test(p))score++;
+     if(/\d/.test(p))score++;if(/[^A-Za-z0-9]/.test(p))score++;
+     result=(lang==="fa"?"امتیاز ":"Score ")+score+"/5 — "+
+       (score<=2?(lang==="fa"?"ضعیف":"Weak"):score<=3?(lang==="fa"?"متوسط":"Fair"):(lang==="fa"?"قوی‌تر":"Stronger"));
+     break;
+    }
+    case "calculator":{
+     let a=Number(val("a")),b=Number(val("b")),op=val("op");
+     if(!Number.isFinite(a)||!Number.isFinite(b))throw Error("Invalid number");
+     if(op==="/"&&b===0)throw Error("Cannot divide by zero");
+     result=({"+":()=>a+b,"-":()=>a-b,"*":()=>a*b,"/":()=>a/b,"%":()=>a%b})[op]();break;
+    }
+    case "wordcount":{
+     const words=text.trim()?text.trim().split(/\s+/u).length:0;
+     result=`${tr("wordCount")}: ${words}\n${tr("charCount")}: ${text.length}\n${tr("bytes")}: ${new TextEncoder().encode(text).length}`;break;
+    }
+    case "case":{
+     const mode=val("mode");
+     result=mode==="upper"?text.toLocaleUpperCase():mode==="lower"?text.toLocaleLowerCase():text.replace(/\b\w/g,c=>c.toUpperCase());break;
+    }
+    case "sortlines":result=text.split(/\r?\n/).sort((a,b)=>a.localeCompare(b)).join("\n");break;
+    case "cleantext":result=text.replace(/[ \t]+/g," ").replace(/\n{3,}/g,"\n\n").trim();break;
+    case "b64e":result=btoa(unescape(encodeURIComponent(text)));break;
+    case "b64d":result=decodeURIComponent(escape(atob(text.trim())));break;
+    case "urlencode":result=encodeURIComponent(text);break;
+    case "urldecode":result=decodeURIComponent(text);break;
+    case "jsonformat":result=JSON.stringify(JSON.parse(text),null,2);break;
+    case "jsonvalidate":JSON.parse(text);result=lang==="fa"?"JSON معتبر است ✓":"Valid JSON ✓";break;
+    case "jsonescape":result=JSON.stringify(text);break;
+    case "reverse":result=[...text].reverse().join("");break;
+    case "duplicate":result=[...new Set(text.split(/\r?\n/))].join("\n");break;
+    case "textformat":result=text.trim().replace(/[ \t]+/g," ").replace(/\n{3,}/g,"\n\n");break;
+    case "textdownload":downloadText(text,"binyaz-text.txt");result=lang==="fa"?"فایل دانلود شد.":"File downloaded.";break;
+    case "base64file":result=`${new TextEncoder().encode(text).length} ${tr("bytes")}\nBase64 estimate: ${Math.ceil(text.length/3)*4}`;break;
+    case "markdown":result=text;break;
+    case "regex":{
+     const re=new RegExp(val("pattern"),"g");
+     const matches=[...text.matchAll(re)].map(m=>m[0]);
+     result=matches.length?matches.join("\n"):(lang==="fa"?"تطبیقی پیدا نشد.":"No matches found.");break;
+    }
+    case "compare":{
+     const a=val("a"),b=val("b");
+     result=a===b?(lang==="fa"?"دو متن یکسان هستند.":"The texts are identical."):
+       (lang==="fa"?"دو متن متفاوت‌اند.\nطول متن اول: ":"Texts differ.\nFirst text length: ")+a.length+
+       (lang==="fa"?"\nطول متن دوم: ":"\nSecond text length: ")+b.length;break;
+    }
+    case "units":{
+     const n=Number(val("amount"));if(!Number.isFinite(n))throw Error("Invalid amount");
+     const conversions={
+      "km-mi":[n*.621371,n/0.621371],"kg-lb":[n*2.20462,n/2.20462],
+      "c-f":[n*9/5+32,(n-32)*5/9],"cm-in":[n/2.54,n*2.54],
+      "m-ft":[n*3.28084,n/3.28084],"l-gal":[n*.264172,n/.264172]
+     };
+     result=conversions[val("unit")].map(x=>Number(x.toFixed(5))).join(" | ");break;
+    }
+    case "random":{
+     const min=Math.ceil(Number(val("min"))),max=Math.floor(Number(val("max")));
+     const count=Math.min(100,Math.max(1,Number(val("count"))||1));
+     if(max<min)throw Error("Maximum must be greater than minimum");
+     result=Array.from({length:count},()=>Math.floor(Math.random()*(max-min+1))+min).join("\n");break;
+    }
+    case "datecalc":{
+     const a=new Date(val("a")),b=new Date(val("b"));
+     if(!val("a")||!val("b"))throw Error("Select both dates");
+     result=Math.abs(Math.round((b-a)/86400000))+" "+(lang==="fa"?"روز":"days");break;
+    }
+    case "engagement":{
+     const likes=Number(val("likes"))||0,comments=Number(val("comments"))||0,shares=Number(val("shares"))||0,followers=Number(val("followers"));
+     if(followers<=0)throw Error("Followers must be greater than zero");
+     result=((likes+comments+shares)/followers*100).toFixed(2)+"%";break;
+    }
+    case "uuid":result=crypto.randomUUID();break;
+    case "unix":{
+     const v=val("value").trim();
+     const d=v?new Date(Number(v)*1000):new Date();
+     if(Number.isNaN(d.getTime()))throw Error("Invalid timestamp");
+     result=d.toISOString();break;
+    }
+    case "sampledata":{
+     const n=Math.min(100,Math.max(1,Number(val("count"))||5));
+     const kind=val("kind");
+     const names=["Alex Morgan","Sam Taylor","Jordan Lee","Casey Smith","Riley Brown"];
+     result=Array.from({length:n},(_,i)=>kind==="emails"?`user${i+1}@example.com`:kind==="numbers"?String(i+1):kind==="users"?{id:i+1,name:names[i%names.length],email:`user${i+1}@example.com`}:names[i%names.length]);
+     if(kind==="users")result=JSON.stringify(result,null,2);else result=result.join("\n");
+     break;
+    }
+    case "percentage":{
+     const a=Number(val("a")),b=Number(val("b"));
+     if(!b)throw Error("Total cannot be zero");
+     result=(a/b*100).toFixed(2)+"%";break;
+    }
+    case "average":{
+     const nums=text.split(/[,\s]+/).filter(Boolean).map(Number);
+     if(!nums.length||nums.some(n=>!Number.isFinite(n)))throw Error("Enter valid numbers");
+     result=(nums.reduce((a,b)=>a+b,0)/nums.length).toString();break;
+    }
+    case "hex":{
+     const s=val("value").trim();
+     if(/^#[0-9a-f]{3}$/i.test(s)){
+      const h=s.slice(1).split("").map(c=>c+c).join("");
+      result=`HEX: #${h}\nRGB: ${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)}`;
+     }else if(/^#[0-9a-f]{6}$/i.test(s)){
+      result=`HEX: ${s.toUpperCase()}\nRGB: ${parseInt(s.slice(1,3),16)}, ${parseInt(s.slice(3,5),16)}, ${parseInt(s.slice(5,7),16)}`;
+     }else{
+      const m=s.match(/^\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/);
+      if(!m||m.slice(1).some(n=>+n>255))throw Error("Enter #HEX or R,G,B");
+      result="#"+m.slice(1).map(n=>(+n).toString(16).padStart(2,"0")).join("").toUpperCase();
+     }break;
+    }
+    case "lorem":{
+     const sentences=["Lorem ipsum dolor sit amet, consectetur adipiscing elit.","Vivamus interdum erat vitae augue posuere.","Donec feugiat magna at sapien consequat.","Praesent sed libero vel neque aliquet."];
+     result=Array.from({length:Math.min(30,Math.max(1,Number(val("count"))||3))},(_,i)=>sentences[i%sentences.length]).join(" ");break;
+    }
+    default:result=text;
+   }
+   out(result);
+  }catch(e){out((lang==="fa"?"خطا: ":"Error: ")+(e.message||"Invalid input"))}
+ });
+ on("copyBtn","click",async()=>{
+  const text=$("#result")?.textContent||"";
+  if(!text)return;
+  try{await navigator.clipboard.writeText(text);toast(tr("copied"))}
+  catch{const ta=document.createElement("textarea");ta.value=text;document.body.append(ta);ta.select();document.execCommand("copy");ta.remove();toast(tr("copied"))}
+ });
+ on("clearBtn","click",()=>{
+  $$("input,textarea",$("#toolForm")).forEach(el=>{if(el.type!=="checkbox")el.value=""});
+  if($("#result"))$("#result").textContent="";
+ });
+ on("saveNote","click",()=>{
+  const title=val("noteTitle").trim(),text=val("noteText").trim();
+  if(!title&&!text){toast(tr("required"));return}
+  notes.push({title,text,type:"note",date:new Date().toISOString()});persist();renderNotes();toast(tr("saved"));
+ });
+ on("saveItem","click",()=>{
+  const title=val("itemTitle").trim(),text=val("itemText").trim();
+  if(!text){toast(tr("required"));return}
+  notes.push({title,text,type:t.type,date:new Date().toISOString()});persist();renderNotes();toast(tr("saved"));
+ });
+ on("addTask","click",()=>{
+  const task=val("task").trim();if(!task)return;
+  notes.push({title:task,text:"",type:"todo",done:false});persist();renderNotes();
+  $id("task").value="";
+ });
+ on("startClock","click",()=>{
+  clearInterval(clockInterval);
+  clockRemaining=t.type==="timer"?Math.max(1,Number(val("seconds"))||60):0;
+  if(t.type==="stopwatch")clockRemaining=0;
+  const start=Date.now(),initial=clockRemaining;
+  const tick=()=>{
+   const elapsed=Math.floor((Date.now()-start)/1000);
+   const remain=t.type==="timer"?Math.max(0,initial-elapsed):elapsed;
+   const m=String(Math.floor(remain/60)).padStart(2,"0"),s=String(remain%60).padStart(2,"0");
+   $id("clockResult").textContent=m+":"+s;
+   if(t.type==="timer"&&remain===0){clearInterval(clockInterval);toast(lang==="fa"?"زمان تمام شد!":"Time's up!")}
+  };
+  tick();clockInterval=setInterval(tick,250);
+ });
+ on("stopClock","click",()=>clearInterval(clockInterval));
+ on("resetClock","click",()=>{clearInterval(clockInterval);$id("clockResult").textContent="00:00"});
+ on("qrBtn","click",()=>{
+  const value=val("value");if(!value)return;
+  const r=$("#result");
+  r.innerHTML="";
+  const img=document.createElement("img");
+  img.alt="QR Code";img.width=220;img.height=220;
+  img.style.maxWidth="100%";img.style.background="white";img.style.padding="8px";
+  img.src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(value);
+  r.append(img);
+  const p=document.createElement("p");
+  p.textContent=lang==="fa"?"برای تولید QR از سرویس آنلاین استفاده می‌شود.":"QR is generated by an online service.";
+  r.append(p);
+ });
+ on("compressBtn","click",async()=>{
+  const file=$id("imageFile")?.files?.[0];if(!file){toast(tr("required"));return}
+  try{
+   const img=new Image(),url=URL.createObjectURL(file);
+   img.onload=()=>{
+    const canvas=document.createElement("canvas");
+    canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+    canvas.getContext("2d").drawImage(img,0,0);
+    canvas.toBlob(blob=>{
+     if(!blob){toast("Error");return}
+     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="compressed.jpg";a.click();
+     $("#imageResult").textContent=`${file.size} → ${blob.size} bytes`;
+     URL.revokeObjectURL(url);
+    },"image/jpeg",Math.min(1,Math.max(.1,Number(val("quality"))||.7)));
+   };
+   img.onerror=()=>toast("Could not read image");
+   img.src=url;
+  }catch{toast("Error")}
+ });
+ on("imageFile","change",()=>{
+  if(t.type!=="imageinfo")return;
+  const f=$id("imageFile").files?.[0];if(f)out(`${f.name}\n${f.type}\n${f.size} bytes`);
+ });
+ renderNotes();
+}
+function makePrompt(t,subject,details,language,ratio){
+ if(!subject.trim()){toast(tr("required"));return ""}
+ const styles={
+ family:"warm family keepsake photograph, natural expressions, authentic connection",
+ couple:"tasteful couple portrait, elegant composition, natural lighting",
+ duo:"two-person portrait, genuine expressions, balanced composition",
+ friends:"friendship portrait, candid joyful moment, natural atmosphere",
+ birthday:"birthday portrait, festive details, soft celebratory lighting",
+ graduation:"graduation portrait, cap and gown, proud and joyful mood",
+ cinematic:"cinematic portrait, dramatic soft lighting, film color grading",
+ profile:"professional profile portrait, clean background, balanced lighting",
+ bw:"fine-art black and white photography, rich tonal contrast",
+ nostalgia:"nostalgic film photography, subtle grain, timeless atmosphere",
+ street:"street photography, candid moment, natural urban light",
+ studio:"professional studio portrait, controlled lighting, refined background",
+ traditional:"respectful traditional outfit portrait, detailed fabric textures",
+ movie:"cinematic movie poster composition, dramatic visual hierarchy",
+ musiccover:"creative music cover artwork, memorable visual concept",
+ joy:"bright celebratory banner design, joyful atmosphere, clear focal point",
+ memorial:"respectful memorial banner, calm dark palette, elegant floral details, generous negative space",
+ condolence:"respectful condolence banner, restrained typography, calm composition",
+ bdaybanner:"birthday banner design, celebratory elements, clean layout",
+ wedding:"elegant wedding banner design, refined floral details",
+ adbanner:"professional advertising banner, strong focal point, clear visual hierarchy",
+ sale:"high-impact sale poster, clear product focus, readable layout",
+ instabanner:"social media banner, mobile-first composition, strong visual hierarchy",
+ youtube:"YouTube channel cover, clear subject, safe-area-aware composition",
+ concert:"concert poster design, stage lighting, energetic composition",
+ religious:"respectful religious poster design, elegant ornaments, balanced composition",
+ event:"event poster design, clear hierarchy, memorable focal image",
+ opening:"grand opening banner, welcoming atmosphere, professional layout",
+ sport:"dynamic sports poster, energetic composition, dramatic lighting",
+ invite:"elegant invitation card, balanced typography and decorative details"
+ };
+ const style=styles[t.style]||"creative professional design, polished composition, balanced lighting";
+ const isFa=language==="fa";
+ const extra=details.trim();
+ const instruction=isFa
+ ?`یک تصویر حرفه‌ای بساز با موضوع: ${subject}.\nسبک بصری: ${style}.\nجزئیات: ${extra||"جزئیات طبیعی، کیفیت بالا و ترکیب‌بندی حرفه‌ای"}.\nنسبت تصویر: ${ratio}.\nکیفیت بالا، جزئیات دقیق، نورپردازی هماهنگ و ترکیب‌بندی منسجم.`
+ :`Create a high-quality image about: ${subject}.\nVisual style: ${style}.\nAdditional details: ${extra||"natural details, high quality and professional composition"}.\nAspect ratio: ${ratio}.\nHigh detail, balanced lighting, coherent composition.`;
+ return instruction;
+}
+function renderNotes(){
+ const list=$("#notesList");if(!list)return;
+ list.replaceChildren();
+ const relevant=notes.filter(n=>{
+  if(currentTool?.type==="notes")return n.type==="note";
+  if(currentTool?.type==="snippets")return n.type==="snippets";
+  if(currentTool?.type==="prompts")return n.type==="prompts";
+  if(currentTool?.type==="links")return n.type==="links";
+  if(currentTool?.type==="todo")return n.type==="todo";
+  return false;
+ });
+ relevant.forEach(n=>{
+  const div=document.createElement("div");div.className="tool-card";div.style.minHeight="0";div.style.marginTop="10px";
+  const title=document.createElement("h3");title.textContent=n.title||"(Untitled)";
+  const body=document.createElement("p");body.textContent=n.text||"";
+  const actions=document.createElement("div");actions.className="actions";
+  if(n.type==="todo"){
+   const toggle=document.createElement("button");toggle.className="secondary";toggle.textContent=n.done?"✓":"○";
+   toggle.addEventListener("click",()=>{n.done=!n.done;persist();renderNotes()});actions.append(toggle);
+  }
+  const copy=document.createElement("button");copy.className="secondary";copy.textContent=tr("copy");
+  copy.addEventListener("click",()=>navigator.clipboard?.writeText(n.text||n.title).then(()=>toast(tr("copied"))).catch(()=>toast(n.text||n.title)));
+  const del=document.createElement("button");del.className="secondary";del.textContent=lang==="fa"?"حذف":"Delete";
+  del.addEventListener("click",()=>{notes=notes.filter(x=>x!==n);persist();renderNotes()});
+  actions.append(copy,del);div.append(title,body,actions);list.append(div);
+ });
+}
+function downloadText(text,name){
+ const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$("#exportBtn").addEventListener("click",()=>{
+ downloadText(JSON.stringify(notes,null,2),"binyaz-box-notes.json");
+});
+window.addEventListener("beforeinstallprompt",e=>{
+ e.preventDefault();installPrompt=e;$("#installBtn").hidden=false;
+});
+$("#installBtn").addEventListener("click",async()=>{
+ if(!installPrompt)return;
+ installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("#installBtn").hidden=true;
+});
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+applyLanguage();
+})();
+</script>
+</body>
+</html>
